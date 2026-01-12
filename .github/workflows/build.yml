@@ -1,0 +1,45 @@
+name: Compile Kernel TOM EAS 4.4
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Checkout Source
+      uses: actions/checkout@v4
+      with:
+        ref: eas
+
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y bc build-essential flex bison libssl-dev libncurses5-dev git-core tar wget clang gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi libelf-dev
+
+    - name: Get Toolchain
+      run: |
+        git clone --depth=1 github.com clang
+
+    - name: Build Kernel
+      run: |
+        export PATH=$(pwd)/clang/bin:$PATH
+        export ARCH=arm64
+        export SUBARCH=arm64
+        
+        # Ubah nama kernel di sini jika mau
+        sed -i 's/CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION="-Zena-EAS"/g' arch/arm64/configs/X00TD_defconfig
+        
+        make O=out X00TD_defconfig
+        make -j$(nproc --all) O=out \
+                      CC=clang \
+                      CLANG_TRIPLE=aarch64-linux-gnu- \
+                      CROSS_COMPILE=aarch64-linux-gnu- \
+                      CROSS_COMPILE_ARM32=arm-linux-gnueabi-
+
+    - name: Upload Result
+      uses: actions/upload-artifact@v4
+      with:
+        name: Kernel-X00TD-Zena
+        path: out/arch/arm64/boot/Image.gz-dtb
