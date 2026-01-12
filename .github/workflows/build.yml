@@ -29,7 +29,7 @@ jobs:
         export SUBARCH=arm64
         
         # Ubah nama kernel di sini jika mau
-        sed -i 's/CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION="-Zena-EAS"/g' arch/arm64/configs/X00TD_defconfig
+        sed -i 's/CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION="-Hantu-EAS"/g' arch/arm64/configs/X00TD_defconfig
         
         make O=out X00TD_defconfig
         make -j$(nproc --all) O=out \
