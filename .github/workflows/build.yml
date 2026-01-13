@@ -16,7 +16,9 @@ jobs:
     - name: Install Dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y bc build-essential flex bison libssl-dev libncurses5-dev git-core tar wget clang gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi libelf-dev python3
+        sudo apt-get install -y bc build-essential flex bison libssl-dev libncurses5-dev \
+        git-core tar wget clang gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi libelf-dev \
+        python3 rsync lz4 liblz4-tool lzip
 
     - name: Get Toolchain
       run: |
@@ -24,29 +26,38 @@ jobs:
 
     - name: Build Kernel
       run: |
+        # 1. Atur Environment
         export PATH=$GITHUB_WORKSPACE/clang/bin:$PATH
         export ARCH=arm64
         export SUBARCH=arm64
         export KBUILD_BUILD_USER="Hantu"
         export KBUILD_BUILD_HOST="Hantu-Lab"
         
-        # Ubah nama kernel di sini jika mau
+        # 2. Modifikasi Defconfig
+        # Pastikan file ada sebelum sed menjalankan perintah
         sed -i 's/CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION="-Hantu-EAS"/g' arch/arm64/configs/X00TD_defconfig
 
-        make mrproper
+        # 3. Proses Build (Urutan yang Benar)
+        # Hapus folder out lama agar benar-benar clean tanpa merusak Makefile
+        rm -rf out
+        mkdir -p out
+        
         make O=out X00TD_defconfig
+        
+        # Jalankan kompilasi
         make -j$(nproc --all) O=out \
                       CC=clang \
-                      CROSS_COMPILE=aarch64-linux-gnu- \
-                      CROSS_COMPILE_ARM32=arm-linux-gnueabi- \
                       AR=llvm-ar \
                       NM=llvm-nm \
                       OBJCOPY=llvm-objcopy \
                       OBJDUMP=llvm-objdump \
-                      STRIP=llvm-strip
+                      STRIP=llvm-strip \
+                      CROSS_COMPILE=aarch64-linux-gnu- \
+                      CROSS_COMPILE_ARM32=arm-linux-gnueabi-
 
     - name: Upload Result
       uses: actions/upload-artifact@v4
       with:
         name: Kernel-X00TD-Hantu
-        path: out/arch/arm64/boot/Image.gz-dtb
+        # Menggunakan wildcard agar jika nama file sedikit berbeda tetap terupload
+        path: out/arch/arm64/boot/Image.gz*
