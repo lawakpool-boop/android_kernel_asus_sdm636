@@ -16,7 +16,7 @@ jobs:
     - name: Install Dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y bc build-essential flex bison libssl-dev libncurses5-dev git-core tar wget clang gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi libelf-dev
+        sudo apt-get install -y bc build-essential flex bison libssl-dev libncurses5-dev git-core tar wget clang gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi libelf-dev python3
 
     - name: Get Toolchain
       run: |
