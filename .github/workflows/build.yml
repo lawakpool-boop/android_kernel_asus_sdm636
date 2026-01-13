@@ -27,9 +27,12 @@ jobs:
         export PATH=$(pwd)/clang/bin:$PATH
         export ARCH=arm64
         export SUBARCH=arm64
+        export KBUILD_BUILD_USER="Hantu"
+        export KBUILD_BUILD_HOST="Hantu-Lab"
         
         # Ubah nama kernel di sini jika mau
         sed -i 's/CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION="-Hantu-EAS"/g' arch/arm64/configs/X00TD_defconfig
+        echo 'CONFIG_LOCALVERSION="-Hantu-EAS"' >> arch/arm64/configs/X00TD_defconfig
         
         make O=out X00TD_defconfig
         make -j$(nproc --all) O=out \
