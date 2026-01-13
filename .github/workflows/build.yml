@@ -24,6 +24,11 @@ jobs:
       run: |
         git clone --depth=1 https://github.com/kdrag0n/proton-clang.git $GITHUB_WORKSPACE/clang
 
+    - name: Setup KernelSU
+      run: |
+        # Perintah ini akan mendownload source KernelSU yang hilang
+        curl -LSs "raw.githubusercontent.com" | bash -
+
     - name: Build Kernel
       run: |
         # 1. Atur Environment
