@@ -20,11 +20,11 @@ jobs:
 
     - name: Get Toolchain
       run: |
-        git clone --depth=1 github.com clang
+        git clone --depth=1 https://github.com/kdrag0n/proton-clang.git $GITHUB_WORKSPACE/clang
 
     - name: Build Kernel
       run: |
-        export PATH=$(pwd)/clang/bin:$PATH
+        export PATH=$GITHUB_WORKSPACE/clang/bin:$PATH
         export ARCH=arm64
         export SUBARCH=arm64
         export KBUILD_BUILD_USER="Hantu"
@@ -32,17 +32,21 @@ jobs:
         
         # Ubah nama kernel di sini jika mau
         sed -i 's/CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION="-Hantu-EAS"/g' arch/arm64/configs/X00TD_defconfig
-        echo 'CONFIG_LOCALVERSION="-Hantu-EAS"' >> arch/arm64/configs/X00TD_defconfig
-        
+
+        make mrproper
         make O=out X00TD_defconfig
         make -j$(nproc --all) O=out \
                       CC=clang \
-                      CLANG_TRIPLE=aarch64-linux-gnu- \
                       CROSS_COMPILE=aarch64-linux-gnu- \
-                      CROSS_COMPILE_ARM32=arm-linux-gnueabi-
+                      CROSS_COMPILE_ARM32=arm-linux-gnueabi- \
+                      AR=llvm-ar \
+                      NM=llvm-nm \
+                      OBJCOPY=llvm-objcopy \
+                      OBJDUMP=llvm-objdump \
+                      STRIP=llvm-strip
 
     - name: Upload Result
       uses: actions/upload-artifact@v4
       with:
-        name: Kernel-X00TD-Zena
+        name: Kernel-X00TD-Hantu
         path: out/arch/arm64/boot/Image.gz-dtb
